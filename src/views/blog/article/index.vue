@@ -2,8 +2,8 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input :placeholder="$t('table.title')" v-model="listQuery.title" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-select v-model="listQuery.category" placeholder="分类" clearable style="width: 90px" class="filter-item">
-        <el-option v-for="item in categoryOptions" :key="item" :label="item" :value="item"/>
+      <el-select v-model="listQuery.category_id" :remote-method="getCategoryList" clearable remote filterable style="width: 155px" placeholder="分类" class="filter-item">
+        <el-option v-for="item in categoryOptions" :key="item.id" :label="item.name" :value="item.id"/>
       </el-select>
       <el-button v-waves class="filter-item" type="success" size="mini" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>
       <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" size="mini" icon="el-icon-download" @click="handleDownload">{{ $t('table.export') }}</el-button>
@@ -19,9 +19,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="分类ID" prop="id" sortable="custom" align="center">
+      <el-table-column label="分类" sortable="custom" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.category_id }}</span>
+          <span>{{ scope.row.category }}</span>
         </template>
       </el-table-column>
 
@@ -46,8 +46,8 @@
       <el-table-column prop="picture" header-align="center" align="center" width="150px" label="缩略图">
         <template slot-scope="scope">
           <el-popover placement="right" title="完整图预览" trigger="click">
-            <img :src="scope.row.img_url" alt="xx">
-            <img slot="reference" :src="scope.row.img_url" style="max-height: 20px;max-width: 130px">
+            <img :src="scope.row.thumbnail" alt="xx">
+            <img slot="reference" :src="scope.row.thumbnail" style="max-height: 20px;max-width: 130px">
           </el-popover>
         </template>
       </el-table-column>
@@ -60,7 +60,7 @@
 
       <el-table-column :label="$t('table.createdAt')" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.created_at }}</span>
+          <span>{{ scope.row.created_at | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
 
@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import { articleList, articleDelete } from '@/api'
+import { articleList, articleDelete, categoryList } from '@/api'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
@@ -124,10 +124,10 @@ export default {
       listQuery: {
         page: 1,
         per_page: 20,
-        category: undefined,
+        category_id: undefined,
         title: undefined
       },
-      categoryOptions: [1, '分类2', 3]
+      categoryOptions: []
     }
   },
   created() {
@@ -136,14 +136,9 @@ export default {
   methods: {
     getList() {
       articleList(this.listQuery).then(response => {
-        const cdnImageDomain = 'http://cdn.lnmpa.top/'
-        const tempList = response.data.data
         this.total = response.data.meta.pagination.total
         this.listLoading = false
-        for (var i = 0; i < tempList.length; i++) {
-          tempList[i].img_url = tempList[i].thumbnail ? cdnImageDomain + tempList[i].thumbnail : 'http://127.0.0.1:8000/svg/default.png'
-        }
-        this.list = tempList
+        this.list = response.data.data
       })
     },
     handleModifyStatus(row, status) {
@@ -162,15 +157,24 @@ export default {
       this.previewDialog = true
     },
     handleDelete(row) {
-      articleDelete(row.id).then(() => {
-        this.$notify({
-          title: '成功',
-          message: '删除成功',
-          type: 'success',
-          duration: 2000
+      this.$confirm('confirm delete', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        articleDelete(row.id).then(() => {
+          const index = this.list.indexOf(row)
+          this.list.splice(index, 1)
+          this.$message.success('delete success')
         })
-        const index = this.list.indexOf(row)
-        this.list.splice(index, 1)
+      }).catch(() => {
+        // cancel
+      })
+    },
+    getCategoryList() {
+      categoryList().then((response) => {
+        this.categoryOptions = response.data.data
+        console.log(response.data.data)
       })
     },
     handleDownload() {

@@ -54,7 +54,7 @@
         </el-form-item>
 
         <el-form-item label="缩略图">
-          <image-upload v-model="thumbnail" />
+          <image-upload v-model="articleForm.thumbnail" :now-pic-url="articleForm.thumbnail"/>
         </el-form-item>
 
         <el-form-item prop="content" label="内容">

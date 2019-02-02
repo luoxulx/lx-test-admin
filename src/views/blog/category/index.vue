@@ -52,12 +52,11 @@
       <el-table-column :label="$t('table.actions')" align="center" min-width="95" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="warning" size="mini" @click="handleUpdate(scope.row)">{{ $t('table.edit') }}</el-button>
-          <el-button type="danger" size="mini" @click="handleDelete(scope.row.id)">{{ $t('table.delete') }}</el-button>
+          <el-button type="danger" size="mini" @click="handleDelete(scope.row)">{{ $t('table.delete') }}</el-button>
         </template>
       </el-table-column>
 
     </el-table>
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.per_page" @pagination="getList" />
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="50%">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
@@ -84,11 +83,9 @@
 
 <script>
 import { categoryList, categoryCreate, categoryUpdate, categoryDelete } from '@/api'
-import Pagination from '@/components/Pagination'
 
 export default {
   name: 'Category',
-  components: { Pagination },
   data() {
     return {
       styleOptions: ['default', 'primary', 'success', 'info', 'warning', 'danger'],
@@ -104,12 +101,7 @@ export default {
         description: [{ required: true, message: 'description is required', trigger: 'blur' }]
       },
       list: null,
-      listLoading: true,
-      total: 0,
-      listQuery: {
-        page: 1,
-        per_page: 10
-      }
+      listLoading: true
     }
   },
   created() {
@@ -120,7 +112,6 @@ export default {
       this.listLoading = true
       categoryList(this.listQuery).then(response => {
         this.list = response.data.data
-        this.total = response.data.meta.pagination.total
         this.listLoading = false
       })
     },
@@ -172,10 +163,19 @@ export default {
         }
       })
     },
-    handleDelete(id) {
-      categoryDelete(id).then(() => {
-        this.getList()
-        this.$message.success('删除成功')
+    handleDelete(row) {
+      this.$confirm('confirm delete', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        categoryDelete(row.id).then(() => {
+          const index = this.list.indexOf(row)
+          this.list.splice(index, 1)
+          this.$message.success('delete success')
+        })
+      }).catch(() => {
+        // cancel
       })
     }
   }

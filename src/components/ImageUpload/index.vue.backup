@@ -1,0 +1,125 @@
+<template>
+  <el-upload>
+    <el-button
+      :action="picUploadUrl"
+      :multiple="picIsMultiple"
+      :data="picExtraData"
+      :name="picFieldName"
+      :with-credentials="picWithCredentials"
+      :show-file-list="picShowFileList"
+      :drag="picIsDrag"
+      :accept="picAccept"
+      :auto-upload="picAutoUpload"
+      :limit="picFileLimit"
+      :on-preview="picClickPreview"
+      :on-remove="picClickRemove"
+      :on-success="picUploadSuccess"
+      :on-error="picUploadError"
+      :on-progress="picUploadProgress"
+      :on-change="picClickChange"
+      :before-upload="picBeforeUpload"
+      :before-remove="picBeforeRemove"
+      :on-exceed="picExceedLimit"
+      size="small"
+      type="primary" >上传</el-button>
+  </el-upload>
+</template>
+<el-dialog :visible.sync="picDialogVisible">
+  <img :src="nowPicUrl" width="100%" alt="">
+</el-dialog>
+<script>
+
+export default {
+  name: 'ImageUpload',
+  props: {
+    picPathPrefix: {
+      type: String,
+      default: 'path_prefix'
+    },
+    picUploadUrl: {
+      type: String,
+      default: 'http://127.0.0.1:8000/api/pic/upload'
+    },
+    picIsMultiple: {
+      type: Boolean,
+      default: false
+    },
+    picExtraData: {
+      type: Object,
+      default: null
+    },
+    picWithCredentials: {
+      type: Boolean,
+      default: false
+    },
+    picShowFileList: {
+      type: Boolean,
+      default: false
+    },
+    picIsDrag: {
+      type: Boolean,
+      default: false
+    },
+    picAccept: {
+      type: String,
+      default: 'file'
+    },
+    picAutoUpload: {
+      type: Boolean,
+      default: true
+    },
+    picFileLimit: {
+      type: Number,
+      default: 1
+    },
+    picFieldName: {
+      type: String,
+      default: 'file'
+    }
+  },
+  data() {
+    return {
+      nowPicUrl: '',
+      picDialogVisible: false
+    }
+  },
+  methods: {
+    picClickPreview(file) {
+      // 点击文件列表中已上传的文件时的钩子
+      console.log(file)
+    },
+    picClickRemove(file) {
+      // 文件列表移除文件时的钩子
+      console.log(file)
+    },
+    picUploadSuccess(file) {
+      // 文件上传成功时的钩子
+      console.log(file)
+    },
+    picUploadError(file) {
+      // 文件上传失败时的钩子
+      console.log(file)
+    },
+    picUploadProgress(file) {
+      // 文件上传进行时的钩子
+      console.log(file)
+    },
+    picClickChange(file) {
+      // 文件状态改变时的钩子，添加文件、上传成功和上传失败时都会被调用
+      console.log(file)
+    },
+    picBeforeUpload(file) {
+      // 上传文件之前的钩子，参数为上传的文件，若返回 false 或者返回 Promise 且被 reject，则停止上传
+      console.log(file)
+    },
+    picBeforeRemove(file) {
+      // 删除文件之前的钩子，参数为上传的文件和文件列表，若返回 false 或者返回 Promise 且被 reject，则停止上传
+      console.log(file)
+    },
+    picExceedLimit(file) {
+      // 文件超出个数限制时的钩子
+      console.log(file)
+    }
+  }
+}
+</script>

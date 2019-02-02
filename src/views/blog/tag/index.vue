@@ -169,10 +169,18 @@ export default {
       })
     },
     handleDelete(row) {
-      TagDelete(row.id).then(() => {
-        this.$message.success('delete successful')
-        const index = this.list.indexOf(row)
-        this.list.splice(index, 1)
+      this.$confirm('confirm delete', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        TagDelete(row.id).then(() => {
+          const index = this.list.indexOf(row)
+          this.list.splice(index, 1)
+          this.$message.success('delete success')
+        })
+      }).catch(() => {
+        // cancel
       })
     }
   }

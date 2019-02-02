@@ -125,6 +125,7 @@ export default {
         images_upload_handler(blobInfo, success, failure) {
           const formData = new FormData()
           formData.append('file', blobInfo.blob())
+          formData.append('dir', 'editor/pic')
           imageUpload(formData).then((response) => {
             success(response.data.data.url)
           }).catch(error => {
